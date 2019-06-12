@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>23.1.1</version>
+	</parent>
+
+	<groupId>net.imglib2</groupId>
+	<artifactId>labkit-command-line</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<name>Labkit Command Line Interface</name>
+	<description>A shell command that allows to perform Labkit segmentation on a cluster.</description>
+	<url>https://github.com/maarzt/labkit-command-line</url>
+	<inceptionYear>2017</inceptionYear>
+	<organization>
+		<name>CSBD</name>
+		<url>http://csbdresden.de/</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>Simplified BSD License</name>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
+
+	<developers>
+		<developer>
+			<id>maarzt</id>
+			<name>Matthias Arzt</name>
+			<url>http://imagej.net/User:Maarzt</url>
+			<roles>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+	</developers>
+	<contributors>
+		<!--
+		NB: Need at least one element to override the parent.
+		See: https://issues.apache.org/jira/browse/MNG-5220
+		-->
+		<contributor>
+			<name>None</name>
+		</contributor>
+	</contributors>
+
+	<repositories>
+		<repository>
+			<id>imagej.public</id>
+			<url>http://maven.imagej.net/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>saalfeld-lab-maven-repo</id>
+			<url>https://saalfeldlab.github.io/maven</url>
+		</repository>
+	</repositories>
+
+	<scm>
+		<connection>scm:git:git://github.com/maarzt/labkit-command-line</connection>
+		<developerConnection>scm:git:git@github.com:maarzt/labkit-command-line</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/maarzt/labkit-command-line</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/maarzt/labkit-command-line/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/maarzt/labkit-command-line</url>
+	</ciManagement>
+
+	<properties>
+		<enforcer.skip>true</enforcer.skip>
+		<package-name>net.imglib2.labkit</package-name>
+		<license.licenseName>bsd_2</license.licenseName>
+		<license.copyrightOwners>Matthias Arzt, Philipp Hanslovsky</license.copyrightOwners>
+		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
+		<releaseProfiles>deploy-to-imagej</releaseProfiles>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>net.revelc.code.formatter</groupId>
+				<artifactId>formatter-maven-plugin</artifactId>
+				<version>2.7.3</version>
+				<configuration>
+					<configFile>${project.basedir}/.formatter/java-imagej-coding-style.xml</configFile>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>labkit_cluster.command.LabkitCommand</mainClass>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/json/org.scijava.plugin.Plugin</resource>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>info.picocli</groupId>
+			<artifactId>picocli</artifactId>
+			<version>3.9.6</version>
+		</dependency>
+		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2-labkit</artifactId>
+			<version>0.1.16-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.8.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.janelia.saalfeldlab</groupId>
+			<artifactId>n5-imglib2</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjdk.jmh</groupId>
+			<artifactId>jmh-core</artifactId>
+			<version>1.19</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjdk.jmh</groupId>
+			<artifactId>jmh-generator-annprocess</artifactId>
+			<version>1.19</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>
