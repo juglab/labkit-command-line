@@ -33,7 +33,7 @@ public class LabkitCommandTest {
 
 	private static Path createOutputN5() throws IOException {
 		Path path = Files.createTempDirectory("test-dataset");
-		assertExitCodeZero(LabkitClusterCommand.parseAndExecuteCommandLine("prepare", "--image", imageXml, "--n5",
+		assertExitCodeZero( LabkitCommand.parseAndExecuteCommandLine("prepare", "--image", imageXml, "--n5",
 				path.toString()));
 		return path;
 	}
@@ -41,9 +41,9 @@ public class LabkitCommandTest {
 	@Test
 	public void testSegmentRange() throws IOException {
 		Path output = createOutputN5();
-		assertExitCodeZero(LabkitClusterCommand.parseAndExecuteCommandLine("segment-chunk", "--image", imageXml,
+		assertExitCodeZero( LabkitCommand.parseAndExecuteCommandLine("segment-chunk", "--image", imageXml,
 				"--classifier", classifier, "--n5", output.toString(), "--chunks", "2", "--index", "0"));
-		assertExitCodeZero(LabkitClusterCommand.parseAndExecuteCommandLine("segment-chunk", "--image", imageXml,
+		assertExitCodeZero( LabkitCommand.parseAndExecuteCommandLine("segment-chunk", "--image", imageXml,
 				"--classifier", classifier, "--n5", output.toString(), "--chunks", "2", "--index", "1"));
 		assertTrue(output.resolve(PrepareCommand.N5_DATASET_NAME).resolve("0/0/0").toFile().exists());
 	}
@@ -52,7 +52,7 @@ public class LabkitCommandTest {
 	public void testSaveHdf5() throws IOException {
 		File file = File.createTempFile("test-data", ".xml");
 		assertTrue(file.delete());
-		assertExitCodeZero(LabkitClusterCommand.parseAndExecuteCommandLine("create-hdf5", "--n5", n5, "--xml",
+		assertExitCodeZero( LabkitCommand.parseAndExecuteCommandLine("create-hdf5", "--n5", n5, "--xml",
 				file.getAbsolutePath()));
 		assertTrue(file.exists());
 	}
@@ -62,7 +62,7 @@ public class LabkitCommandTest {
 	}
 
 	public static void main(String... args) {
-		LabkitClusterCommand.main("show", "--n5", n5);
+		LabkitCommand.main("show", "--n5", n5);
 	}
 
 }

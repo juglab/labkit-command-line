@@ -13,10 +13,10 @@ import java.util.concurrent.Callable;
  * {@link PrepareCommand}, {@link SegmentCommand}, {@link CreateHdf5Command},
  * {@link ShowCommand}
  */
-@CommandLine.Command(name = LabkitClusterCommand.COMMAND_NAME, subcommands = {PrepareCommand.class,
+@CommandLine.Command(name = LabkitCommand.COMMAND_NAME, subcommands = {PrepareCommand.class,
 		SegmentCommand.class, ShowCommand.class,
 		CreateHdf5Command.class}, description = "Labkit command line tool for the segmentation of large files.")
-public class LabkitClusterCommand implements Callable<Optional<Integer>> {
+public class LabkitCommand implements Callable<Optional<Integer>> {
 
 	static final String COMMAND_NAME = "java -jar labkit-command-line.jar";
 
@@ -28,7 +28,7 @@ public class LabkitClusterCommand implements Callable<Optional<Integer>> {
 	}
 
 	private void showUsage() {
-		CommandLine.usage(new LabkitClusterCommand(), System.err);
+		CommandLine.usage(new LabkitCommand(), System.err);
 		showExample();
 	}
 
@@ -69,7 +69,7 @@ public class LabkitClusterCommand implements Callable<Optional<Integer>> {
 	}
 
 	static Optional<Integer> parseAndExecuteCommandLine(String... args) {
-		List<Object> exitCodes = new CommandLine(new LabkitClusterCommand())
+		List<Object> exitCodes = new CommandLine(new LabkitCommand())
 				.parseWithHandlers(new CommandLine.RunLast(), CommandLine.defaultExceptionHandler().andExit(1), args);
 		@SuppressWarnings("unchecked")
 		Optional<Integer> exitCode = (Optional<Integer>) exitCodes.get(0);
