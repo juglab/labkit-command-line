@@ -1,6 +1,12 @@
 
 package labkit_cluster.command;
 
+import io.scif.SCIFIO;
+import net.imagej.Dataset;
+import net.imagej.DatasetService;
+import net.imagej.DefaultDataset;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.labkit.inputimage.SpimDataInputImage;
 import org.junit.Test;
 
 import java.io.File;
@@ -16,53 +22,86 @@ import static org.junit.Assert.assertTrue;
 
 public class LabkitCommandTest {
 
-	private static final String imageXml = LabkitCommandTest.class.getResource("/small-t1-head/input.xml").getPath();
+	private static final String imageXml = getPath("/small-t1-head/input.xml");
 
-	private static final String classifier = LabkitCommandTest.class
-			.getResource("/small-t1-head/small-t1-head.classifier").getPath();
+	private static final String classifier = getPath("/small-t1-head/small-t1-head.classifier");
 
-	private static final String n5 = LabkitCommandTest.class.getResource("/small-t1-head/segmentation.n5").getPath();
+	private static final String n5 = getPath("/small-t1-head/segmentation.n5");
 
 	@Test
 	public void testPrepare() throws IOException {
-		Path output = createOutputN5();
-		List<String> files = Arrays.asList(output.toFile().list());
+		Path tmpN5 = prepare();
+		List<String> files = Arrays.asList(tmpN5.toFile().list());
 		assertTrue(files.contains("attributes.json"));
 		assertTrue(files.contains("segmentation"));
 	}
 
-	private static Path createOutputN5() throws IOException {
-		Path path = Files.createTempDirectory("test-dataset");
-		assertExitCodeZero( LabkitCommand.parseAndExecuteCommandLine("prepare", "--image", imageXml, "--n5",
-				path.toString()));
-		return path;
+	private static Path prepare() throws IOException {
+		Path tmpN5 = Files.createTempDirectory("test-dataset");
+		runCommandLine("prepare", "--image", imageXml, "--n5", tmpN5.toString());
+		return tmpN5;
 	}
-
 	@Test
 	public void testSegmentRange() throws IOException {
-		Path output = createOutputN5();
-		assertExitCodeZero( LabkitCommand.parseAndExecuteCommandLine("segment-chunk", "--image", imageXml,
-				"--classifier", classifier, "--n5", output.toString(), "--chunks", "2", "--index", "0"));
-		assertExitCodeZero( LabkitCommand.parseAndExecuteCommandLine("segment-chunk", "--image", imageXml,
-				"--classifier", classifier, "--n5", output.toString(), "--chunks", "2", "--index", "1"));
-		assertTrue(output.resolve(PrepareCommand.N5_DATASET_NAME).resolve("0/0/0").toFile().exists());
+		Path tmpN5 = prepare();
+		runCommandLine("segment-chunk", "--image", imageXml, "--classifier", classifier, "--n5", tmpN5 .toString(), "--chunks", "2", "--index", "0");
+		runCommandLine("segment-chunk", "--image", imageXml, "--classifier", classifier, "--n5", tmpN5 .toString(), "--chunks", "2", "--index", "1");
+		assertTrue(tmpN5.resolve(PrepareCommand.N5_DATASET_NAME).resolve("0/0/0").toFile().exists());
 	}
 
 	@Test
 	public void testSaveHdf5() throws IOException {
 		File file = File.createTempFile("test-data", ".xml");
 		assertTrue(file.delete());
-		assertExitCodeZero( LabkitCommand.parseAndExecuteCommandLine("create-hdf5", "--n5", n5, "--xml",
-				file.getAbsolutePath()));
+		runCommandLine("create-hdf5", "--n5", n5, "--xml", file.getAbsolutePath());
 		assertTrue(file.exists());
-	}
-
-	private static void assertExitCodeZero(Optional<Integer> exitCode) {
-		assertEquals(Optional.of(0), exitCode);
 	}
 
 	public static void main(String... args) {
 		LabkitCommand.main("show", "--n5", n5);
 	}
 
+	private static String getPath(String file) {
+		return LabkitCommandTest.class.getResource(file).getPath();
+	}
+
+	private static void runCommandLine(String... args) {
+		Optional< Integer > exitCode = LabkitCommand.parseAndExecuteCommandLine(args);
+		assertEquals(Optional.of(0), exitCode);
+	}
+
+	@Test
+	public void test2d() throws IOException {
+		testDataset("2d");
+	}
+
+	@Test
+	public void test3d() throws IOException {
+		testDataset("3d");
+	}
+
+	@Test
+	public void test5d() throws IOException {
+		testDataset("5d");
+	}
+
+	@Test
+	public void test2dPlusTime() throws IOException {
+		testDataset("2d_time");
+	}
+
+	@Test
+	public void test3dPlusTime() throws IOException {
+		testDataset("3d_time");
+	}
+
+	private void testDataset(String folder) throws IOException {
+		String imageXml = getPath("/" + folder + "/export.xml");
+		String classifier = getPath("/" + folder + "/test.classifier");
+		Path tmpN5 = Files.createTempDirectory("test-n5");
+		Path tmpHDF5 = Files.createTempFile("test-", ".xml");
+		runCommandLine("prepare", "--image", imageXml, "--n5", tmpN5.toString());
+		runCommandLine("segment-chunk", "--image", imageXml, "--classifier", classifier, "--n5", tmpN5.toString(), "--chunks", "1", "--index", "0");
+		runCommandLine("create-hdf5", "--n5", tmpN5.toString(), "--xml", tmpHDF5.toString());
+	}
 }
