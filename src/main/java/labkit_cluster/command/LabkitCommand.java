@@ -13,15 +13,10 @@ import java.util.concurrent.Callable;
  * {@link PrepareCommand}, {@link SegmentCommand}, {@link CreateHdf5Command},
  * {@link ShowCommand}
  */
-@CommandLine.Command(
-		name = LabkitCommand.COMMAND_NAME,
-		subcommands = {
-				PrepareCommand.class,
-				SegmentCommand.class, ShowCommand.class,
-				CreateHdf5Command.class, CreatePartitionedHdf5Command.class
-		},
-		description = "Labkit command line tool for the segmentation of large files."
-)
+@CommandLine.Command(name = LabkitCommand.COMMAND_NAME, subcommands = {
+	PrepareCommand.class, SegmentCommand.class, ShowCommand.class,
+	CreateHdf5Command.class, CreatePartitionedHdf5Command.class },
+	description = "Labkit command line tool for the segmentation of large files.")
 public class LabkitCommand implements Callable<Optional<Integer>> {
 
 	static final String COMMAND_NAME = "java -jar labkit-command-line.jar";
@@ -43,32 +38,41 @@ public class LabkitCommand implements Callable<Optional<Integer>> {
 		System.err.println("Usage Example:");
 		System.err.println();
 		System.err.println(
-				"  The following shell commands will segment the image \"input.xml\" using the classifier \"input.classifier\".");
-		System.err.println("  The image must be stored in Big Data Viewer format (HDF5 + XML).");
-		System.err.println("  The classifier should be trained and saved with the Labkit FIJI plugin.");
-		System.err.println("  The segmentation is performed in three chunks \"--chunks 3\".");
-		System.err.println("  It's possible to distribute the segmentation to a cluster,");
-		System.err.println("  by processing each chunk on a different cluster node.");
-		System.err.println("  In reality the number of chunks should correspond, to the number of cluster nodes used.");
+			"  The following shell commands will segment the image \"input.xml\" using the classifier \"input.classifier\".");
+		System.err.println(
+			"  The image must be stored in Big Data Viewer format (HDF5 + XML).");
+		System.err.println(
+			"  The classifier should be trained and saved with the Labkit FIJI plugin.");
+		System.err.println(
+			"  The segmentation is performed in three chunks \"--chunks 3\".");
+		System.err.println(
+			"  It's possible to distribute the segmentation to a cluster,");
+		System.err.println(
+			"  by processing each chunk on a different cluster node.");
+		System.err.println(
+			"  In reality the number of chunks should correspond, to the number of cluster nodes used.");
 		System.err.println();
-		System.err.println("  Preparation:      " + COMMAND_NAME + " prepare --image input.xml --n5 tmp.n5");
+		System.err.println("  Preparation:      " + COMMAND_NAME +
+			" prepare --image input.xml --n5 tmp.n5");
 		showSegmentExample(0);
 		showSegmentExample(1);
 		showSegmentExample(2);
-		System.err.println("  Store results:    " + COMMAND_NAME + " create-hdf5 --n5 tmp.n5 --xml output.xml");
+		System.err.println("  Store results:    " + COMMAND_NAME +
+			" create-hdf5 --n5 tmp.n5 --xml output.xml");
 	}
 
 	private void showSegmentExample(int index) {
-		System.err.println("  Chunk " + (index + 1) + ":          " + COMMAND_NAME
-				+ " segment-chunk --image input.xml --classifier input.classifier --n5 tmp.n5 --chunks 3 --index "
-				+ index);
+		System.err.println("  Chunk " + (index + 1) + ":          " + COMMAND_NAME +
+			" segment-chunk --image input.xml --classifier input.classifier --n5 tmp.n5 --chunks 3 --index " +
+			index);
 	}
 
 	public static void main(String... args) {
 		try {
 			Optional<Integer> exitCode = parseAndExecuteCommandLine(args);
 			exitCode.ifPresent(System::exit);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 			System.exit(3);
 		}
@@ -76,7 +80,8 @@ public class LabkitCommand implements Callable<Optional<Integer>> {
 
 	static Optional<Integer> parseAndExecuteCommandLine(String... args) {
 		List<Object> exitCodes = new CommandLine(new LabkitCommand())
-				.parseWithHandlers(new CommandLine.RunLast(), CommandLine.defaultExceptionHandler().andExit(1), args);
+			.parseWithHandlers(new CommandLine.RunLast(), CommandLine
+				.defaultExceptionHandler().andExit(1), args);
 		@SuppressWarnings("unchecked")
 		Optional<Integer> exitCode = (Optional<Integer>) exitCodes.get(0);
 		return exitCode;

@@ -35,54 +35,63 @@ import java.util.stream.IntStream;
  * of a part of the image. Which part, is defined by the given number of chunks
  * and the chunk index.
  */
-@CommandLine.Command(name = "segment-chunk", description = "Segment a part (chunk) of the image using a given classifier."
-		+ "Stores the results in the N5 folder.")
+@CommandLine.Command(name = "segment-chunk",
+	description = "Segment a part (chunk) of the image using a given classifier." +
+		"Stores the results in the N5 folder.")
 public class SegmentCommand implements Callable<Optional<Integer>> {
 
-	@CommandLine.Option(names = {"--image"}, required = true, description = "Image to be segmented.")
+	@CommandLine.Option(names = { "--image" }, required = true,
+		description = "Image to be segmented.")
 	private File imageXml;
 
-	@CommandLine.Option(names = {
-			"--classifier"}, required = true, description = "Classifier that was trained using the FIJI Labkit plugin.")
+	@CommandLine.Option(names = { "--classifier" }, required = true,
+		description = "Classifier that was trained using the FIJI Labkit plugin.")
 	private File classifier;
 
-	@CommandLine.Option(names = {
-			"--n5"}, required = true, description = "N5 folder that was created using the \"prepare\" sub command.")
+	@CommandLine.Option(names = { "--n5" }, required = true,
+		description = "N5 folder that was created using the \"prepare\" sub command.")
 	private File n5;
 
-	@CommandLine.Option(names = {
-			"--chunks"}, required = true, paramLabel = "NUMBER_OF_CHUNKS", description = "The segmentation task will be divided into the given number of chunks.")
+	@CommandLine.Option(names = { "--chunks" }, required = true,
+		paramLabel = "NUMBER_OF_CHUNKS",
+		description = "The segmentation task will be divided into the given number of chunks.")
 	private int number_of_chunks;
 
-	@CommandLine.Option(names = {
-			"--index"}, required = true, paramLabel = "CHUNK_INDEX", description = "Index, of the chunk to be processed. Integer value greater or equal to zero, but smaller than the number of chunks.")
+	@CommandLine.Option(names = { "--index" }, required = true,
+		paramLabel = "CHUNK_INDEX",
+		description = "Index, of the chunk to be processed. Integer value greater or equal to zero, but smaller than the number of chunks.")
 	private int index;
 
 	@Override
 	public Optional<Integer> call() throws Exception {
-		SpimDataInputImage image = new SpimDataInputImage(imageXml.getAbsolutePath(), 0);
-		Segmenter segmenter = initSegmenter( image );
-		writeN5Range(n5.getAbsolutePath(), index % number_of_chunks, number_of_chunks,
-				block -> segmenter.segment(image.imageForSegmentation(), block));
+		SpimDataInputImage image = new SpimDataInputImage(imageXml
+			.getAbsolutePath(), 0);
+		Segmenter segmenter = initSegmenter(image);
+		writeN5Range(n5.getAbsolutePath(), index % number_of_chunks,
+			number_of_chunks, block -> segmenter.segment(image.imageForSegmentation(),
+				block));
 		return Optional.of(0); // exit code 0
 	}
 
-	private Segmenter initSegmenter( SpimDataInputImage image )
-	{
+	private Segmenter initSegmenter(SpimDataInputImage image) {
 		Segmenter segmenter = openSegmenter(classifier.getAbsolutePath(), image);
-		if( image.isTimeSeries() )
-			segmenter = new TimeSeriesSegmenter( segmenter );
+		if (image.isTimeSeries()) segmenter = new TimeSeriesSegmenter(segmenter);
 		return segmenter;
 	}
 
-	private static TrainableSegmentationSegmenter openSegmenter(String classifier, SpimDataInputImage image) {
-		TrainableSegmentationSegmenter segmenter = new TrainableSegmentationSegmenter(new Context(), image);
+	private static TrainableSegmentationSegmenter openSegmenter(String classifier,
+		SpimDataInputImage image)
+	{
+		TrainableSegmentationSegmenter segmenter =
+			new TrainableSegmentationSegmenter(new Context(), image);
 		segmenter.openModel(classifier);
 		return segmenter;
 	}
 
 	private static void writeN5Range(String output, int index, int numberOfChunks,
-			Consumer<RandomAccessibleInterval<UnsignedByteType>> loader) throws IOException {
+		Consumer<RandomAccessibleInterval<UnsignedByteType>> loader)
+		throws IOException
+	{
 		N5Writer writer = new N5FSWriter(output);
 		long[] gridDimensions = getCellGrid(writer).getGridDimensions();
 		long size = Intervals.numElements(gridDimensions);
@@ -93,24 +102,29 @@ public class SegmentCommand implements Callable<Optional<Integer>> {
 			long[] blockOffset = new long[gridDimensions.length];
 			IntervalIndexer.indexToPosition(i, gridDimensions, blockOffset);
 			saveBlock(writer, blockOffset, loader);
-			System.out.println("Block " + (i - start) + " of " + (end - start)
-					+ " has been segmented. Block coordinates: " + Arrays.toString(blockOffset));
+			System.out.println("Block " + (i - start) + " of " + (end - start) +
+				" has been segmented. Block coordinates: " + Arrays.toString(
+					blockOffset));
 		}
 	}
 
 	private static void saveBlock(N5Writer writer, long[] blockOffset,
-			Consumer<RandomAccessibleInterval<UnsignedByteType>> loader) throws IOException {
+		Consumer<RandomAccessibleInterval<UnsignedByteType>> loader)
+		throws IOException
+	{
 		CellGrid grid = getCellGrid(writer);
 		long[] cellMin = new long[grid.numDimensions()];
 		int[] cellDims = new int[grid.numDimensions()];
 		grid.getCellDimensions(blockOffset, cellMin, cellDims);
 		Img<UnsignedByteType> block = ArrayImgs.unsignedBytes(toLongs(cellDims));
 		loader.accept(Views.translate(block, cellMin));
-		N5Utils.saveBlock(block, writer, PrepareCommand.N5_DATASET_NAME, blockOffset);
+		N5Utils.saveBlock(block, writer, PrepareCommand.N5_DATASET_NAME,
+			blockOffset);
 	}
 
 	private static CellGrid getCellGrid(N5Writer writer) throws IOException {
-		DatasetAttributes attributes = writer.getDatasetAttributes(PrepareCommand.N5_DATASET_NAME);
+		DatasetAttributes attributes = writer.getDatasetAttributes(
+			PrepareCommand.N5_DATASET_NAME);
 		return new CellGrid(attributes.getDimensions(), attributes.getBlockSize());
 	}
 

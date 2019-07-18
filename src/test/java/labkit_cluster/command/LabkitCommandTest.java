@@ -24,7 +24,8 @@ public class LabkitCommandTest {
 
 	private static final String imageXml = getPath("/small-t1-head/input.xml");
 
-	private static final String classifier = getPath("/small-t1-head/small-t1-head.classifier");
+	private static final String classifier = getPath(
+		"/small-t1-head/small-t1-head.classifier");
 
 	private static final String n5 = getPath("/small-t1-head/segmentation.n5");
 
@@ -41,12 +42,16 @@ public class LabkitCommandTest {
 		runCommandLine("prepare", "--image", imageXml, "--n5", tmpN5.toString());
 		return tmpN5;
 	}
+
 	@Test
 	public void testSegmentRange() throws IOException {
 		Path tmpN5 = prepare();
-		runCommandLine("segment-chunk", "--image", imageXml, "--classifier", classifier, "--n5", tmpN5 .toString(), "--chunks", "2", "--index", "0");
-		runCommandLine("segment-chunk", "--image", imageXml, "--classifier", classifier, "--n5", tmpN5 .toString(), "--chunks", "2", "--index", "1");
-		assertTrue(tmpN5.resolve(PrepareCommand.N5_DATASET_NAME).resolve("0/0/0").toFile().exists());
+		runCommandLine("segment-chunk", "--image", imageXml, "--classifier",
+			classifier, "--n5", tmpN5.toString(), "--chunks", "2", "--index", "0");
+		runCommandLine("segment-chunk", "--image", imageXml, "--classifier",
+			classifier, "--n5", tmpN5.toString(), "--chunks", "2", "--index", "1");
+		assertTrue(tmpN5.resolve(PrepareCommand.N5_DATASET_NAME).resolve("0/0/0")
+			.toFile().exists());
 	}
 
 	@Test
@@ -66,7 +71,7 @@ public class LabkitCommandTest {
 	}
 
 	private static void runCommandLine(String... args) {
-		Optional< Integer > exitCode = LabkitCommand.parseAndExecuteCommandLine(args);
+		Optional<Integer> exitCode = LabkitCommand.parseAndExecuteCommandLine(args);
 		assertEquals(Optional.of(0), exitCode);
 	}
 
@@ -101,7 +106,9 @@ public class LabkitCommandTest {
 		Path tmpN5 = Files.createTempDirectory("test-n5");
 		Path tmpHDF5 = Files.createTempFile("test-", ".xml");
 		runCommandLine("prepare", "--image", imageXml, "--n5", tmpN5.toString());
-		runCommandLine("segment-chunk", "--image", imageXml, "--classifier", classifier, "--n5", tmpN5.toString(), "--chunks", "1", "--index", "0");
-		runCommandLine("create-hdf5", "--n5", tmpN5.toString(), "--xml", tmpHDF5.toString());
+		runCommandLine("segment-chunk", "--image", imageXml, "--classifier",
+			classifier, "--n5", tmpN5.toString(), "--chunks", "1", "--index", "0");
+		runCommandLine("create-hdf5", "--n5", tmpN5.toString(), "--xml", tmpHDF5
+			.toString());
 	}
 }
