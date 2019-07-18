@@ -1,6 +1,7 @@
 
 package labkit_cluster.command;
 
+import bdv.export.ProgressWriterConsole;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.hdf5.HDF5Saver;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
@@ -35,13 +36,17 @@ public class CreatePartitionedHdf5Command implements
 		required = true)
 	private File xml;
 
-	@CommandLine.Option(names = { "-H", "--header" },
-		description = "Only write XML & index HDF5")
+	@CommandLine.Option(names = { "--header" },
+		description = "Only write XML & index HDF5.")
 	private boolean onlyHeader;
 
 	@CommandLine.Option(names = { "--partition" },
 		description = "Only write the partition with the give index. The index must be between 0 and number of partitions minus 1.")
 	private Integer partitionIndex;
+
+	@CommandLine.Option(names = { "--number-of-partitions" },
+		description = "Only print the number of partitions.")
+	private boolean isPrintNumberOfPartions;
 
 	@Override
 	public Optional<Integer> call() throws Exception {
@@ -49,7 +54,11 @@ public class CreatePartitionedHdf5Command implements
 		RandomAccessibleInterval<UnsignedByteType> result = N5Utils.open(reader,
 			N5_DATASET_NAME, new UnsignedByteType());
 		HDF5Saver saver = new HDF5Saver(result, xml.getAbsolutePath());
+		saver.setProgressWriter(new ProgressWriterConsole());
+		saver.setPartitions(1, 1);
 		if (onlyHeader) saver.writeXmlAndHdf5();
+		else if (isPrintNumberOfPartions) System.out.println(saver
+			.numberOfPartitions());
 		else if (partitionIndex != null) saver.writePartition(partitionIndex);
 		else saver.writeAll();
 		return Optional.of(0); // exit code

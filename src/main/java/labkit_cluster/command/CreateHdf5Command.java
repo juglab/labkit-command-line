@@ -1,6 +1,7 @@
 
 package labkit_cluster.command;
 
+import bdv.export.ProgressWriterConsole;
 import net.imglib2.hdf5.HDF5Saver;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
@@ -38,7 +39,9 @@ public class CreateHdf5Command implements Callable<Optional<Integer>> {
 		N5FSReader reader = new N5FSReader(n5.getAbsolutePath());
 		RandomAccessibleInterval<UnsignedByteType> result = N5Utils.open(reader,
 			N5_DATASET_NAME, new UnsignedByteType());
-		new HDF5Saver(result, xml.getAbsolutePath()).writeAll();
+		HDF5Saver saver = new HDF5Saver(result, xml.getAbsolutePath());
+		saver.setProgressWriter(new ProgressWriterConsole());
+		saver.writeAll();
 		return Optional.of(0); // exit code
 	}
 }

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class LabkitCommandTest {
@@ -60,6 +61,54 @@ public class LabkitCommandTest {
 		assertTrue(file.delete());
 		runCommandLine("create-hdf5", "--n5", n5, "--xml", file.getAbsolutePath());
 		assertTrue(file.exists());
+	}
+
+	@Test
+	public void testSavePartitionedHdf5() throws IOException {
+		File directory = Files.createTempDirectory("test-partitioned-hdf5")
+			.toFile();
+		File xml = new File(directory, "test.xml");
+		runCommandLine("create-partitioned-hdf5", "--n5", n5, "--xml", xml
+			.getAbsolutePath());
+		assertTrue(xml.exists());
+		assertTrue(new File(directory, "test.h5").exists());
+		assertTrue(new File(directory, "test-00-00.h5").exists());
+	}
+
+	@Test
+	public void testSavePartitionedHdf5Partition() throws IOException {
+		File directory = Files.createTempDirectory("test-partitioned-hdf5")
+			.toFile();
+		File xml = new File(directory, "test.xml");
+		runCommandLine("create-partitioned-hdf5", "--n5", n5, "--xml", xml
+			.getAbsolutePath(), "--partition", "0");
+		assertFalse(xml.exists());
+		assertFalse(new File(directory, "test.h5").exists());
+		assertTrue(new File(directory, "test-00-00.h5").exists());
+	}
+
+	@Test
+	public void testSavePartitionedHdf5Header() throws IOException {
+		File directory = Files.createTempDirectory("test-partitioned-hdf5")
+			.toFile();
+		File xml = new File(directory, "test.xml");
+		runCommandLine("create-partitioned-hdf5", "--n5", n5, "--xml", xml
+			.getAbsolutePath(), "--header");
+		assertTrue(xml.exists());
+		assertTrue(new File(directory, "test.h5").exists());
+		assertFalse(new File(directory, "test-00-00.h5").exists());
+	}
+
+	@Test
+	public void testSavePartitionedHdf5Number() throws IOException {
+		File directory = Files.createTempDirectory("test-partitioned-hdf5")
+			.toFile();
+		File xml = new File(directory, "test.xml");
+		runCommandLine("create-partitioned-hdf5", "--n5", n5, "--xml", xml
+			.getAbsolutePath(), "--number-of-partitions");
+		assertFalse(xml.exists());
+		assertFalse(new File(directory, "test.h5").exists());
+		assertFalse(new File(directory, "test-00-00.h5").exists());
 	}
 
 	public static void main(String... args) {
