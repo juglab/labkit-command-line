@@ -1,0 +1,51 @@
+import subprocess
+
+IMAGE = "input/drosophila/image.xml"
+CLASSIFIER = "input/drosophila.classifier"
+OUTPUT_XML = "output/segmentation.xml"
+N5_FOLDER = "tmp/n5"
+SEGMENTATION_PROGRESS = "tmp/progress/segmentation"
+HDF5_PROGRESS = "tmp/progress/hdf5"
+
+NUMBER_OF_CHUNKS = 10
+JAR = "labkit-command-line-0.0.1-SNAPSHOT.jar"
+
+subprocess.check_output(["java", "-jar", JAR, "prepare", "--image", IMAGE, "--n5", N5_FOLDER]);
+NUMBER_OF_TIMEPOINTS = int(subprocess.check_output(["java", "-jar", JAR, "create-partitioned-hdf5", "--n5", N5_FOLDER, "--xml=dummy.xml", "--number-of-partitions"]))
+
+rule all:
+	input:
+		OUTPUT_XML
+
+rule segment:
+	input:
+		IMAGE,
+		CLASSIFIER
+	output:
+		SEGMENTATION_PROGRESS + "/{id}.out"
+	shell:
+		"java -jar {JAR} segment-chunk --image={IMAGE} --classifier={CLASSIFIER} --n5={N5_FOLDER} --chunks={NUMBER_OF_CHUNKS} --index={wildcards.id} >&{output}"
+
+rule complete_log:
+	input:
+		expand("{logs}/{id}.out", logs=SEGMENTATION_PROGRESS, id=range(NUMBER_OF_CHUNKS))
+	output:
+		SEGMENTATION_PROGRESS + "/all"
+	shell:
+		"touch {output}"
+
+rule partition:
+	input:
+ 		SEGMENTATION_PROGRESS + "/all"
+	output:
+		HDF5_PROGRESS + "/{id}.out"
+	shell:
+		"java -jar {JAR} create-partitioned-hdf5 --n5={N5_FOLDER} --xml={OUTPUT_XML} --partition={wildcards.id} >&1 | tee {output}.progress && mv {output}.progress {output}"
+
+rule header:
+	input:
+		expand(HDF5_PROGRESS + "/{id}.out", id=range(NUMBER_OF_TIMEPOINTS))
+	output:
+		OUTPUT_XML
+	shell:
+		"java -jar {JAR} create-partitioned-hdf5 --n5={N5_FOLDER} --xml={OUTPUT_XML} --header"
