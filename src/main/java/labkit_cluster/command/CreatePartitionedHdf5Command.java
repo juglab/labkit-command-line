@@ -46,7 +46,7 @@ public class CreatePartitionedHdf5Command implements
 
 	@CommandLine.Option(names = { "--number-of-partitions" },
 		description = "Only print the number of partitions.")
-	private boolean isPrintNumberOfPartions;
+	private boolean isPrintNumberOfPartitions;
 
 	@Override
 	public Optional<Integer> call() throws Exception {
@@ -57,7 +57,7 @@ public class CreatePartitionedHdf5Command implements
 		saver.setProgressWriter(new ProgressWriterConsole());
 		saver.setPartitions(1, 1);
 		if (onlyHeader) saver.writeXmlAndHdf5();
-		else if (isPrintNumberOfPartions) System.out.println(saver
+		else if (isPrintNumberOfPartitions) System.out.println(saver
 			.numberOfPartitions());
 		else if (partitionIndex != null) saver.writePartition(partitionIndex);
 		else saver.writeAll();
