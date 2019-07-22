@@ -10,6 +10,7 @@ import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import picocli.CommandLine;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
@@ -50,10 +51,25 @@ public class CreatePartitionedHdf5Command implements
 
 	@Override
 	public Optional<Integer> call() throws Exception {
+		RandomAccessibleInterval<UnsignedByteType> n5Image = openN5();
+		createOutputDirectory();
+		runTask(n5Image);
+		return Optional.of(0); // exit code
+	}
+
+	private RandomAccessibleInterval<UnsignedByteType> openN5() throws IOException {
 		N5FSReader reader = new N5FSReader(n5.getAbsolutePath());
-		RandomAccessibleInterval<UnsignedByteType> result = N5Utils.open(reader,
-			N5_DATASET_NAME, new UnsignedByteType());
-		HDF5Saver saver = new HDF5Saver(result, xml.getAbsolutePath());
+		return N5Utils.open(reader,
+				N5_DATASET_NAME, new UnsignedByteType());
+	}
+
+	private void createOutputDirectory() {
+		File directory = xml.getParentFile();
+		if(directory != null) directory.mkdirs();
+	}
+
+	private void runTask(RandomAccessibleInterval<UnsignedByteType> n5Image) {
+		HDF5Saver saver = new HDF5Saver(n5Image, xml.getAbsolutePath());
 		saver.setProgressWriter(new ProgressWriterConsole());
 		saver.setPartitions(1, 1);
 		if (onlyHeader) saver.writeXmlAndHdf5();
@@ -61,6 +77,6 @@ public class CreatePartitionedHdf5Command implements
 			.numberOfPartitions());
 		else if (partitionIndex != null) saver.writePartition(partitionIndex);
 		else saver.writeAll();
-		return Optional.of(0); // exit code
 	}
+
 }
