@@ -1,4 +1,5 @@
 import subprocess
+from glob import glob
 
 IMAGE = "input/drosophila/image.xml"
 CLASSIFIER = "input/drosophila.classifier"
@@ -8,7 +9,7 @@ SEGMENTATION_PROGRESS = "tmp/progress/segmentation"
 HDF5_PROGRESS = "tmp/progress/hdf5"
 
 NUMBER_OF_CHUNKS = 10
-JAR = "labkit-command-line-0.0.1-SNAPSHOT.jar"
+JAR = glob("labkit-command-line*.jar")[0]
 
 subprocess.check_output(["java", "-jar", JAR, "prepare", "--image", IMAGE, "--n5", N5_FOLDER]);
 NUMBER_OF_TIMEPOINTS = int(subprocess.check_output(["java", "-jar", JAR, "create-partitioned-hdf5", "--n5", N5_FOLDER, "--xml=dummy.xml", "--number-of-partitions"]))
