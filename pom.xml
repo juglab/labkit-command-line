@@ -130,7 +130,7 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.6</version>
 				<configuration>
-					<finalName>example</finalName>
+					<finalName>labkit-snakemake-exmaple-${version}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 					<descriptors>
 						<descriptor>src/main/assembly/zip.xml</descriptor>
