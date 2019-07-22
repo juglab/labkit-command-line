@@ -1,24 +1,46 @@
 import subprocess
 from glob import glob
 
+# SETTINGS
+
+# Path of the image to be segmented
+# (Must be stored as Big Data Viewer XML + HDF5.)
 IMAGE = "input/drosophila/image.xml"
+
+# Path of the classifier to be used for segmentation.
+# (This should have been created & saved using the Labkit FIJI Plugin.)
 CLASSIFIER = "input/drosophila.classifier"
+
+# Number of chunks for the segmentation,
+# (This is the number of individual cluster jobs, that will be used for segmentation.)
+NUMBER_OF_CHUNKS = 10
+
+# Path to store the resulting Big Data Viewer XML + HDF5
 OUTPUT_XML = "output/segmentation.xml"
+
+# Path to temporary folders
 N5_FOLDER = "tmp/n5"
 SEGMENTATION_PROGRESS = "tmp/progress/segmentation"
 HDF5_PROGRESS = "tmp/progress/hdf5"
 
-NUMBER_OF_CHUNKS = 10
+# Path to the labkit-command-line JAR file.
 JAR = glob("labkit-command-line*.jar")[0]
 
+# PROCESSING PREPARATION
+
+# Create temporary n5 dataset
 subprocess.check_output(["java", "-jar", JAR, "prepare", "--image", IMAGE, "--n5", N5_FOLDER]);
-NUMBER_OF_TIMEPOINTS = int(subprocess.check_output(["java", "-jar", JAR, "create-partitioned-hdf5", "--n5", N5_FOLDER, "--xml=dummy.xml", "--number-of-partitions"]))
+
+# Read number of HDF5 partitions. This should equal the number of timepoints
+NUMBER_OF_HDF5_PARTITIONS = int(subprocess.check_output(["java", "-jar", JAR, "create-partitioned-hdf5", "--n5", N5_FOLDER, "--xml=dummy.xml", "--number-of-partitions"]))
+
+# SNAKEMAKE RULES
 
 rule all:
 	input:
 		OUTPUT_XML
 
-rule segment:
+rule segment_chunk:
 	input:
 		IMAGE,
 		CLASSIFIER
@@ -27,25 +49,25 @@ rule segment:
 	shell:
 		"java -jar {JAR} segment-chunk --image={IMAGE} --classifier={CLASSIFIER} --n5={N5_FOLDER} --chunks={NUMBER_OF_CHUNKS} --index={wildcards.id} >&{output}"
 
-rule complete_log:
+rule segment_all_chunks:
 	input:
 		expand("{logs}/{id}.out", logs=SEGMENTATION_PROGRESS, id=range(NUMBER_OF_CHUNKS))
 	output:
-		SEGMENTATION_PROGRESS + "/all"
+		SEGMENTATION_PROGRESS + "/done"
 	shell:
 		"touch {output}"
 
-rule partition:
+rule write_output_hdf5:
 	input:
- 		SEGMENTATION_PROGRESS + "/all"
+ 		SEGMENTATION_PROGRESS + "/done"
 	output:
 		HDF5_PROGRESS + "/{id}.out"
 	shell:
-		"java -jar {JAR} create-partitioned-hdf5 --n5={N5_FOLDER} --xml={OUTPUT_XML} --partition={wildcards.id} >&1 | tee {output}.progress && mv {output}.progress {output}"
+		"java -jar {JAR} create-partitioned-hdf5 --n5={N5_FOLDER} --xml={OUTPUT_XML} --partition={wildcards.id} >&{output}"
 
-rule header:
+rule write_output_xml:
 	input:
-		expand(HDF5_PROGRESS + "/{id}.out", id=range(NUMBER_OF_TIMEPOINTS))
+		expand(HDF5_PROGRESS + "/{id}.out", id=range(NUMBER_OF_HDF5_PARTITIONS))
 	output:
 		OUTPUT_XML
 	shell:
