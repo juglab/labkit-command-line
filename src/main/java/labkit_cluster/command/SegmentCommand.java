@@ -7,7 +7,6 @@ import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.img.cell.CellGrid;
 import net.imglib2.labkit.inputimage.SpimDataInputImage;
 import net.imglib2.labkit.segmentation.Segmenter;
-import net.imglib2.labkit.segmentation.weka.TimeSeriesSegmenter;
 import net.imglib2.labkit.segmentation.weka.TrainableSegmentationSegmenter;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.util.IntervalIndexer;
@@ -66,24 +65,17 @@ public class SegmentCommand implements Callable<Optional<Integer>> {
 	public Optional<Integer> call() throws Exception {
 		SpimDataInputImage image = new SpimDataInputImage(imageXml
 			.getAbsolutePath(), 0);
-		Segmenter segmenter = initSegmenter(image);
+		Segmenter segmenter = openSegmenter( classifier.getAbsolutePath() );
 		writeN5Range(n5.getAbsolutePath(), index % number_of_chunks,
 			number_of_chunks, block -> segmenter.segment(image.imageForSegmentation(),
 				block));
 		return Optional.of(0); // exit code 0
 	}
 
-	private Segmenter initSegmenter(SpimDataInputImage image) {
-		Segmenter segmenter = openSegmenter(classifier.getAbsolutePath(), image);
-		if (image.isTimeSeries()) segmenter = new TimeSeriesSegmenter(segmenter);
-		return segmenter;
-	}
-
-	private static TrainableSegmentationSegmenter openSegmenter(String classifier,
-		SpimDataInputImage image)
+	private static TrainableSegmentationSegmenter openSegmenter( String classifier )
 	{
 		TrainableSegmentationSegmenter segmenter =
-			new TrainableSegmentationSegmenter(new Context(), image);
+			new TrainableSegmentationSegmenter(new Context());
 		segmenter.openModel(classifier);
 		return segmenter;
 	}

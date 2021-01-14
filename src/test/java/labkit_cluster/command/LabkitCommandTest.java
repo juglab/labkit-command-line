@@ -1,12 +1,6 @@
 
 package labkit_cluster.command;
 
-import io.scif.SCIFIO;
-import net.imagej.Dataset;
-import net.imagej.DatasetService;
-import net.imagej.DefaultDataset;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.labkit.inputimage.SpimDataInputImage;
 import org.junit.Test;
 
 import java.io.File;
@@ -40,7 +34,8 @@ public class LabkitCommandTest {
 
 	private static Path prepare() throws IOException {
 		Path tmpN5 = Files.createTempDirectory("test-dataset");
-		runCommandLine("prepare", "--image", imageXml, "--n5", tmpN5.toString());
+		runCommandLine("prepare", "--image", imageXml, "--classifier",
+				classifier, "--n5", tmpN5.toString());
 		return tmpN5;
 	}
 
@@ -154,7 +149,8 @@ public class LabkitCommandTest {
 		String classifier = getPath("/" + folder + "/test.classifier");
 		Path tmpN5 = Files.createTempDirectory("test-n5");
 		Path tmpHDF5 = Files.createTempFile("test-", ".xml");
-		runCommandLine("prepare", "--image", imageXml, "--n5", tmpN5.toString());
+		runCommandLine("prepare", "--image", imageXml, "--n5", tmpN5.toString(),
+				"--classifier", classifier);
 		runCommandLine("segment-chunk", "--image", imageXml, "--classifier",
 			classifier, "--n5", tmpN5.toString(), "--chunks", "1", "--index", "0");
 		runCommandLine("create-hdf5", "--n5", tmpN5.toString(), "--xml", tmpHDF5

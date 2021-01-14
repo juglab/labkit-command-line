@@ -53,7 +53,7 @@ public class LabkitCommand implements Callable<Optional<Integer>> {
 			"  In reality the number of chunks should correspond, to the number of cluster nodes used.");
 		System.err.println();
 		System.err.println("  Preparation:      " + COMMAND_NAME +
-			" prepare --image input.xml --n5 tmp.n5");
+			" prepare --image input.xml --classifier input.classifier --n5 tmp.n5");
 		showSegmentExample(0);
 		showSegmentExample(1);
 		showSegmentExample(2);

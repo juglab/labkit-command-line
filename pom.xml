@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>27.0.1</version>
+		<version>29.2.1</version>
 	</parent>
 
 	<groupId>net.imglib2</groupId>
@@ -87,14 +87,13 @@
 	</ciManagement>
 
 	<properties>
-		<enforcer.skip>true</enforcer.skip>
 		<package-name>net.imglib2.labkit</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>Matthias Arzt, Philipp Hanslovsky</license.copyrightOwners>
 		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
 		<releaseProfiles>deploy-to-imagej</releaseProfiles>
 		<!-- this version is also specified in labkit so why do we need to specify it here -->
-		<bigdataviewer-core.version>7.0.0</bigdataviewer-core.version>
+		<bigdataviewer-core.version>10.0.1</bigdataviewer-core.version>
 		<scijava-coding-style.version>2.0.0</scijava-coding-style.version>
 		<scijava.coding-style>scijava</scijava.coding-style>
 	</properties>
@@ -122,6 +121,16 @@
 									<resource>META-INF/json/org.scijava.plugin.Plugin</resource>
 								</transformer>
 							</transformers>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
 						</configuration>
 					</execution>
 				</executions>
@@ -151,41 +160,23 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2-labkit</artifactId>
+			<version>0.2.4</version>
+		</dependency>
+		<dependency>
 			<groupId>info.picocli</groupId>
 			<artifactId>picocli</artifactId>
 			<version>3.9.6</version>
 		</dependency>
 		<dependency>
-			<groupId>net.imglib2</groupId>
-			<artifactId>imglib2-labkit</artifactId>
-			<version>0.2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.8.1</version>
-		</dependency>
-		<dependency>
 			<groupId>org.janelia.saalfeldlab</groupId>
 			<artifactId>n5-imglib2</artifactId>
-			<version>3.0.0</version>
 		</dependency>
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.openjdk.jmh</groupId>
-			<artifactId>jmh-core</artifactId>
-			<version>1.19</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.openjdk.jmh</groupId>
-			<artifactId>jmh-generator-annprocess</artifactId>
-			<version>1.19</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

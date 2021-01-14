@@ -29,7 +29,7 @@ JAR = glob("labkit-command-line*.jar")[0]
 # PROCESSING PREPARATION
 
 # Create temporary n5 dataset
-subprocess.check_output(["java", "-jar", JAR, "prepare", "--image", IMAGE, "--n5", N5_FOLDER]);
+subprocess.check_output(["java", "-jar", JAR, "prepare", "--image", IMAGE, "--classifier", CLASSIFIER, "--n5", N5_FOLDER]);
 
 # Read number of HDF5 partitions. This should equal the number of timepoints
 NUMBER_OF_HDF5_PARTITIONS = int(subprocess.check_output(["java", "-jar", JAR, "create-partitioned-hdf5", "--n5", N5_FOLDER, "--xml=dummy.xml", "--number-of-partitions"]))

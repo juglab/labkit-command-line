@@ -1,13 +1,20 @@
 
 package labkit_cluster.command;
 
+import net.imagej.ImgPlus;
+import net.imagej.axis.Axes;
+import net.imglib2.FinalInterval;
 import net.imglib2.img.cell.CellGrid;
-import net.imglib2.labkit.inputimage.SpimDataInputImage;
-import net.imglib2.labkit.utils.LabkitUtils;
+import net.imglib2.labkit.inputimage.ImgPlusViewsOld;
+import net.imglib2.labkit.inputimage.SpimDataToImgPlus;
+import net.imglib2.labkit.segmentation.Segmenter;
+import net.imglib2.labkit.segmentation.weka.TrainableSegmentationSegmenter;
+import net.imglib2.util.Intervals;
 import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.GzipCompression;
 import org.janelia.saalfeldlab.n5.N5FSWriter;
 import org.janelia.saalfeldlab.n5.N5Writer;
+import org.scijava.Context;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -30,21 +37,38 @@ public class PrepareCommand implements Callable<Optional<Integer>> {
 		description = "Image to be segmented.")
 	private File imageXml;
 
+	@CommandLine.Option(names = { "--classifier" }, required = true,
+			description = "Classifier that was trained using the FIJI Labkit plugin.")
+	private File classifier;
+
 	@CommandLine.Option(names = { "--n5", "-N" }, required = true,
 		description = "N5 folder that will be created.")
 	private File n5;
 
 	@Override
 	public Optional<Integer> call() throws Exception {
-		SpimDataInputImage image = new SpimDataInputImage(imageXml
+		ImgPlus< ? > image = SpimDataToImgPlus.open(imageXml
 			.getAbsolutePath(), 0);
-		CellGrid grid = LabkitUtils.suggestGrid(image.interval(), image
-			.isTimeSeries());
+		Segmenter segmenter = openSegmenter( classifier.getAbsolutePath() );
+		int[] cellDimensions = segmenter.suggestCellSize(image);
+		long[] imageDimensions = imageDimensionsWithoutChannelAxis(image);
 		N5Writer writer = new N5FSWriter(n5.getAbsolutePath());
-		int[] cellDimensions = new int[grid.numDimensions()];
-		grid.cellDimensions(cellDimensions);
-		writer.createDataset(N5_DATASET_NAME, grid.getImgDimensions(),
+		writer.createDataset(N5_DATASET_NAME, imageDimensions,
 			cellDimensions, DataType.UINT8, new GzipCompression());
 		return Optional.of(0); // exit code
+	}
+
+	private long[] imageDimensionsWithoutChannelAxis(ImgPlus< ? > image) {
+		if (ImgPlusViewsOld.hasAxis(image, Axes.CHANNEL))
+			image = ImgPlusViewsOld.hyperSlice(image, Axes.CHANNEL, 0);
+		return Intervals.dimensionsAsLongArray(image);
+	}
+
+	private static TrainableSegmentationSegmenter openSegmenter( String classifier )
+	{
+		TrainableSegmentationSegmenter segmenter =
+				new TrainableSegmentationSegmenter(new Context());
+		segmenter.openModel(classifier);
+		return segmenter;
 	}
 }
