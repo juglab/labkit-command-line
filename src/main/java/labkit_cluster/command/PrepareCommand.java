@@ -45,11 +45,14 @@ public class PrepareCommand implements Callable<Optional<Integer>> {
 		description = "N5 folder that will be created.")
 	private File n5;
 
+	@CommandLine.Option(names = { "--use-gpu" })
+	private boolean use_gpu = false;
+
 	@Override
 	public Optional<Integer> call() throws Exception {
 		ImgPlus< ? > image = SpimDataToImgPlus.open(imageXml
 			.getAbsolutePath(), 0);
-		Segmenter segmenter = openSegmenter( classifier.getAbsolutePath() );
+		Segmenter segmenter = openSegmenter();
 		int[] cellDimensions = segmenter.suggestCellSize(image);
 		long[] imageDimensions = imageDimensionsWithoutChannelAxis(image);
 		N5Writer writer = new N5FSWriter(n5.getAbsolutePath());
@@ -64,11 +67,12 @@ public class PrepareCommand implements Callable<Optional<Integer>> {
 		return Intervals.dimensionsAsLongArray(image);
 	}
 
-	private static TrainableSegmentationSegmenter openSegmenter( String classifier )
+	private TrainableSegmentationSegmenter openSegmenter()
 	{
 		TrainableSegmentationSegmenter segmenter =
 				new TrainableSegmentationSegmenter(new Context());
-		segmenter.openModel(classifier);
+		segmenter.openModel(classifier.getAbsolutePath());
+		segmenter.setUseGpu(use_gpu);
 		return segmenter;
 	}
 }

@@ -61,22 +61,26 @@ public class SegmentCommand implements Callable<Optional<Integer>> {
 		description = "Index, of the chunk to be processed. Integer value greater or equal to zero, but smaller than the number of chunks.")
 	private int index;
 
+	@CommandLine.Option(names = { "--use-gpu" })
+	private boolean use_gpu = false;
+
 	@Override
 	public Optional<Integer> call() throws Exception {
 		SpimDataInputImage image = new SpimDataInputImage(imageXml
 			.getAbsolutePath(), 0);
-		Segmenter segmenter = openSegmenter( classifier.getAbsolutePath() );
+		Segmenter segmenter = openSegmenter();
 		writeN5Range(n5.getAbsolutePath(), index % number_of_chunks,
 			number_of_chunks, block -> segmenter.segment(image.imageForSegmentation(),
 				block));
 		return Optional.of(0); // exit code 0
 	}
 
-	private static TrainableSegmentationSegmenter openSegmenter( String classifier )
+	private TrainableSegmentationSegmenter openSegmenter()
 	{
 		TrainableSegmentationSegmenter segmenter =
 			new TrainableSegmentationSegmenter(new Context());
-		segmenter.openModel(classifier);
+		segmenter.openModel(classifier.getAbsolutePath());
+		segmenter.setUseGpu(use_gpu);
 		return segmenter;
 	}
 

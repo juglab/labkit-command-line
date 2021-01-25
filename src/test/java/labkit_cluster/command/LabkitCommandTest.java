@@ -17,13 +17,6 @@ import static org.junit.Assert.assertTrue;
 
 public class LabkitCommandTest {
 
-	private static final String imageXml = getPath("/small-t1-head/input.xml");
-
-	private static final String classifier = getPath(
-		"/small-t1-head/small-t1-head.classifier");
-
-	private static final String n5 = getPath("/small-t1-head/segmentation.n5");
-
 	@Test
 	public void testPrepare() throws IOException {
 		Path tmpN5 = prepare();
@@ -34,18 +27,18 @@ public class LabkitCommandTest {
 
 	private static Path prepare() throws IOException {
 		Path tmpN5 = Files.createTempDirectory("test-dataset");
-		runCommandLine("prepare", "--image", imageXml, "--classifier",
-				classifier, "--n5", tmpN5.toString());
+		runCommandLine("prepare", "--image", TestData.imageXml, "--classifier",
+				TestData.classifier, "--n5", tmpN5.toString());
 		return tmpN5;
 	}
 
 	@Test
 	public void testSegmentRange() throws IOException {
 		Path tmpN5 = prepare();
-		runCommandLine("segment-chunk", "--image", imageXml, "--classifier",
-			classifier, "--n5", tmpN5.toString(), "--chunks", "2", "--index", "0");
-		runCommandLine("segment-chunk", "--image", imageXml, "--classifier",
-			classifier, "--n5", tmpN5.toString(), "--chunks", "2", "--index", "1");
+		runCommandLine("segment-chunk", "--image", TestData.imageXml, "--classifier",
+			TestData.classifier, "--n5", tmpN5.toString(), "--chunks", "2", "--index", "0");
+		runCommandLine("segment-chunk", "--image", TestData.imageXml, "--classifier",
+			TestData.classifier, "--n5", tmpN5.toString(), "--chunks", "2", "--index", "1");
 		assertTrue(tmpN5.resolve(PrepareCommand.N5_DATASET_NAME).resolve("0/0/0")
 			.toFile().exists());
 	}
@@ -54,7 +47,7 @@ public class LabkitCommandTest {
 	public void testSaveHdf5() throws IOException {
 		File file = File.createTempFile("test-data", ".xml");
 		assertTrue(file.delete());
-		runCommandLine("create-hdf5", "--n5", n5, "--xml", file.getAbsolutePath());
+		runCommandLine("create-hdf5", "--n5", TestData.n5, "--xml", file.getAbsolutePath());
 		assertTrue(file.exists());
 	}
 
@@ -63,7 +56,7 @@ public class LabkitCommandTest {
 		File directory = Files.createTempDirectory("test-partitioned-hdf5")
 			.toFile();
 		File xml = new File(directory, "test.xml");
-		runCommandLine("create-partitioned-hdf5", "--n5", n5, "--xml", xml
+		runCommandLine("create-partitioned-hdf5", "--n5", TestData.n5, "--xml", xml
 			.getAbsolutePath());
 		assertTrue(xml.exists());
 		assertTrue(new File(directory, "test.h5").exists());
@@ -75,7 +68,7 @@ public class LabkitCommandTest {
 		File directory = Files.createTempDirectory("test-partitioned-hdf5")
 			.toFile();
 		File xml = new File(directory, "test.xml");
-		runCommandLine("create-partitioned-hdf5", "--n5", n5, "--xml", xml
+		runCommandLine("create-partitioned-hdf5", "--n5", TestData.n5, "--xml", xml
 			.getAbsolutePath(), "--partition", "0");
 		assertFalse(xml.exists());
 		assertFalse(new File(directory, "test.h5").exists());
@@ -87,7 +80,7 @@ public class LabkitCommandTest {
 		File directory = Files.createTempDirectory("test-partitioned-hdf5")
 			.toFile();
 		File xml = new File(directory, "test.xml");
-		runCommandLine("create-partitioned-hdf5", "--n5", n5, "--xml", xml
+		runCommandLine("create-partitioned-hdf5", "--n5", TestData.n5, "--xml", xml
 			.getAbsolutePath(), "--header");
 		assertTrue(xml.exists());
 		assertTrue(new File(directory, "test.h5").exists());
@@ -99,7 +92,7 @@ public class LabkitCommandTest {
 		File directory = Files.createTempDirectory("test-partitioned-hdf5")
 			.toFile();
 		File xml = new File(directory, "test.xml");
-		runCommandLine("create-partitioned-hdf5", "--n5", n5, "--xml", xml
+		runCommandLine("create-partitioned-hdf5", "--n5", TestData.n5, "--xml", xml
 			.getAbsolutePath(), "--number-of-partitions");
 		assertFalse(xml.exists());
 		assertFalse(new File(directory, "test.h5").exists());
@@ -107,11 +100,7 @@ public class LabkitCommandTest {
 	}
 
 	public static void main(String... args) {
-		LabkitCommand.main("show", "--n5", n5);
-	}
-
-	private static String getPath(String file) {
-		return LabkitCommandTest.class.getResource(file).getPath();
+		LabkitCommand.main("show", "--n5", TestData.n5);
 	}
 
 	private static void runCommandLine(String... args) {
@@ -145,8 +134,8 @@ public class LabkitCommandTest {
 	}
 
 	private void testDataset(String folder) throws IOException {
-		String imageXml = getPath("/" + folder + "/export.xml");
-		String classifier = getPath("/" + folder + "/test.classifier");
+		String imageXml = TestData.getPath("/" + folder + "/export.xml");
+		String classifier = TestData.getPath("/" + folder + "/test.classifier");
 		Path tmpN5 = Files.createTempDirectory("test-n5");
 		Path tmpHDF5 = Files.createTempFile("test-", ".xml");
 		runCommandLine("prepare", "--image", imageXml, "--n5", tmpN5.toString(),
