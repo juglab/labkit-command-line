@@ -10,12 +10,12 @@ import java.util.concurrent.Callable;
 /**
  * This is the main class of this project. It uses the PicoCli command line
  * parser, to either show the usage or execute one of the sub commands:
- * {@link PrepareCommand}, {@link SegmentCommand}, {@link CreateHdf5Command},
+ * {@link PrepareCommand}, {@link SegmentChunkCommand}, {@link CreateHdf5Command},
  * {@link ShowCommand}
  */
 @CommandLine.Command(name = LabkitCommand.COMMAND_NAME, subcommands = {
-	PrepareCommand.class, SegmentCommand.class, ShowCommand.class,
-	CreateHdf5Command.class, CreatePartitionedHdf5Command.class },
+	PrepareCommand.class, SegmentChunkCommand.class, ShowCommand.class,
+	CreateHdf5Command.class, CreatePartitionedHdf5Command.class},
 	description = "Labkit command line tool for the segmentation of large files.")
 public class LabkitCommand implements Callable<Optional<Integer>> {
 

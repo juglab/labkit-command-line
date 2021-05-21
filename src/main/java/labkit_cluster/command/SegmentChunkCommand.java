@@ -1,6 +1,8 @@
 
 package labkit_cluster.command;
 
+import net.imagej.ImgPlus;
+import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
@@ -8,9 +10,13 @@ import net.imglib2.img.cell.CellGrid;
 import net.imglib2.labkit.inputimage.SpimDataInputImage;
 import net.imglib2.labkit.segmentation.Segmenter;
 import net.imglib2.labkit.segmentation.weka.TrainableSegmentationSegmenter;
+import net.imglib2.parallel.Parallelization;
+import net.imglib2.parallel.TaskExecutor;
+import net.imglib2.parallel.TaskExecutors;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.util.IntervalIndexer;
 import net.imglib2.util.Intervals;
+import net.imglib2.util.StopWatch;
 import net.imglib2.view.Views;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5FSWriter;
@@ -24,6 +30,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
@@ -37,7 +44,7 @@ import java.util.stream.IntStream;
 @CommandLine.Command(name = "segment-chunk",
 	description = "Segment a part (chunk) of the image using a given classifier." +
 		"Stores the results in the N5 folder.")
-public class SegmentCommand implements Callable<Optional<Integer>> {
+public class SegmentChunkCommand implements Callable<Optional<Integer>> {
 
 	@CommandLine.Option(names = { "--image" }, required = true,
 		description = "Image to be segmented.")
@@ -69,10 +76,30 @@ public class SegmentCommand implements Callable<Optional<Integer>> {
 		SpimDataInputImage image = new SpimDataInputImage(imageXml
 			.getAbsolutePath(), 0);
 		Segmenter segmenter = openSegmenter();
+		final ImgPlus<?> imgPlus = image.imageForSegmentation();
+		Consumer<RandomAccessibleInterval<UnsignedByteType>> loader =
+				block -> segmenter.segment(imgPlus, block);
+		if(segmenter.requiresFixedCellSize())
+			loader = fixBlockSize(loader);
 		writeN5Range(n5.getAbsolutePath(), index % number_of_chunks,
-			number_of_chunks, block -> segmenter.segment(image.imageForSegmentation(),
-				block));
+			number_of_chunks, loader);
 		return Optional.of(0); // exit code 0
+	}
+
+	private Consumer<RandomAccessibleInterval<UnsignedByteType>> fixBlockSize(Consumer<RandomAccessibleInterval<UnsignedByteType>> loader) throws IOException {
+		int[] blockSize = new N5FSWriter(n5.getAbsolutePath())
+				.getDatasetAttributes(PrepareCommand.N5_DATASET_NAME)
+				.getBlockSize();
+		long[] size = IntStream.of(blockSize).mapToLong(x -> x).toArray();
+		return block -> {
+			if(Arrays.equals(Intervals.dimensionsAsLongArray(block), size))
+				loader.accept(block);
+			else {
+				long[] min = Intervals.minAsLongArray(block);
+				FinalInterval interval = FinalInterval.createMinSize(min, size);
+				loader.accept(Views.interval(Views.extendZero(block), interval));
+			}
+		};
 	}
 
 	private TrainableSegmentationSegmenter openSegmenter()
@@ -90,18 +117,27 @@ public class SegmentCommand implements Callable<Optional<Integer>> {
 	{
 		N5Writer writer = new N5FSWriter(output);
 		long[] gridDimensions = getCellGrid(writer).getGridDimensions();
-		long size = Intervals.numElements(gridDimensions);
-		long chunkSize = (size + numberOfChunks - 1) / numberOfChunks;
-		long start = index * chunkSize;
-		long end = Math.min(size, start + chunkSize);
-		for (long i = start; i < end; i++) {
+		int size = (int) Intervals.numElements(gridDimensions);
+		int chunkSize = (size + numberOfChunks - 1) / numberOfChunks;
+		int start = index * chunkSize;
+		int end = Math.min(size, start + chunkSize);
+		StopWatch watch = StopWatch.createAndStart();
+		AtomicInteger counter = new AtomicInteger(start);
+		TaskExecutor taskExecutor = TaskExecutors.multiThreaded();
+		taskExecutor.forEach(new IntRange(start, end), ignore -> {
+			int i = counter.getAndIncrement();
 			long[] blockOffset = new long[gridDimensions.length];
 			IntervalIndexer.indexToPosition(i, gridDimensions, blockOffset);
-			saveBlock(writer, blockOffset, loader);
+			try {
+				saveBlock(writer, blockOffset, loader);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 			System.out.println("Block " + (i - start) + " of " + (end - start) +
-				" has been segmented. Block coordinates: " + Arrays.toString(
+					" has been segmented. Block coordinates: " + Arrays.toString(
 					blockOffset));
-		}
+		});
+		System.out.println("Time elapsed: " + watch);
 	}
 
 	private static void saveBlock(N5Writer writer, long[] blockOffset,
