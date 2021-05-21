@@ -95,7 +95,7 @@
 		<!-- this version is also specified in labkit so why do we need to specify it here -->
 		<bigdataviewer-core.version>10.0.1</bigdataviewer-core.version>
 		<bigdataviewer-vistools.version>1.0.0-beta-22</bigdataviewer-vistools.version>
-		<imglib2-labkit.version>0.2.5</imglib2-labkit.version>
+		<imglib2-labkit.version>0.2.7</imglib2-labkit.version>
 		<scijava-coding-style.version>2.0.0</scijava-coding-style.version>
 		<scijava.coding-style>scijava</scijava.coding-style>
 	</properties>
