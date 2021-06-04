@@ -1,6 +1,7 @@
 
 package labkit_cluster.command;
 
+import labkit_cluster.command.ctc.FluoTrifSeg;
 import picocli.CommandLine;
 
 import java.util.List;
@@ -15,7 +16,8 @@ import java.util.concurrent.Callable;
  */
 @CommandLine.Command(name = LabkitCommand.COMMAND_NAME, subcommands = {
 	PrepareCommand.class, SegmentChunkCommand.class, ShowCommand.class,
-	CreateHdf5Command.class, CreatePartitionedHdf5Command.class},
+	CreateHdf5Command.class, CreatePartitionedHdf5Command.class,
+	FluoTrifSeg.class, SegmentCommand.class},
 	description = "Labkit command line tool for the segmentation of large files.")
 public class LabkitCommand implements Callable<Optional<Integer>> {
 
@@ -78,7 +80,7 @@ public class LabkitCommand implements Callable<Optional<Integer>> {
 		}
 	}
 
-	static Optional<Integer> parseAndExecuteCommandLine(String... args) {
+	public static Optional<Integer> parseAndExecuteCommandLine(String... args) {
 		List<Object> exitCodes = new CommandLine(new LabkitCommand())
 			.parseWithHandlers(new CommandLine.RunLast(), CommandLine
 				.defaultExceptionHandler().andExit(1), args);
