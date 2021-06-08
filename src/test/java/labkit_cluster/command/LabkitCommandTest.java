@@ -103,7 +103,7 @@ public class LabkitCommandTest {
 		LabkitCommand.main("show", "--n5", TestData.n5);
 	}
 
-	private static void runCommandLine(String... args) {
+	static void runCommandLine(String... args) {
 		Optional<Integer> exitCode = LabkitCommand.parseAndExecuteCommandLine(args);
 		assertEquals(Optional.of(0), exitCode);
 	}
