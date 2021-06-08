@@ -3,6 +3,7 @@ package labkit_cluster.command;
 
 import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
+import net.imagej.axis.CalibratedAxis;
 import net.imglib2.FinalInterval;
 import net.imglib2.img.cell.CellGrid;
 import net.imglib2.labkit.inputimage.ImgPlusViewsOld;
@@ -48,17 +49,30 @@ public class PrepareCommand implements Callable<Optional<Integer>> {
 	@CommandLine.Option(names = { "--use-gpu" })
 	private boolean use_gpu = false;
 
+	@CommandLine.Option(names = { "--block-size" },
+		description = "(experimental) Allows to manually specify the block size to be used during segmentation." +
+				"Higher values result in better performance, but also require more memory. 64, 128, 256 might be good values.")
+	private Integer blockSize = null;
+
 	@Override
 	public Optional<Integer> call() throws Exception {
 		ImgPlus< ? > image = SpimDataToImgPlus.open(imageXml
 			.getAbsolutePath(), 0);
 		Segmenter segmenter = openSegmenter();
-		int[] cellDimensions = segmenter.suggestCellSize(image);
+		int[] cellDimensions = blockSize != null ? manualCellSize(image, blockSize) : segmenter.suggestCellSize(image);
 		long[] imageDimensions = imageDimensionsWithoutChannelAxis(image);
 		N5Writer writer = new N5FSWriter(n5.getAbsolutePath());
 		writer.createDataset(N5_DATASET_NAME, imageDimensions,
 			cellDimensions, DataType.UINT8, new GzipCompression());
 		return Optional.of(0); // exit code
+	}
+
+	private int[] manualCellSize(ImgPlus<?> image, Integer blockSize) {
+		int[] cellDimension = new int[image.numDimensions()];
+		for(int i = 0; i < cellDimension.length; ++i) {
+			cellDimension[i] = image.axis(i).type().isSpatial() ? blockSize : 1;
+		}
+		return cellDimension;
 	}
 
 	private long[] imageDimensionsWithoutChannelAxis(ImgPlus< ? > image) {
