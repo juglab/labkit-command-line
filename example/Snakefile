@@ -50,7 +50,7 @@ rule segment_chunk:
 	output:
 		SEGMENTATION_PROGRESS + "/{id}.out"
 	shell:
-		"java -jar {JAR} segment-chunk --image={IMAGE} --classifier={CLASSIFIER} --n5={N5_FOLDER} --use-gpu={USE_GPU} --chunks={NUMBER_OF_CHUNKS} --index={wildcards.id} >&{output}"
+		"java -jar {JAR} segment-chunk --image={IMAGE} --classifier={CLASSIFIER} --n5={N5_FOLDER} --use-gpu={USE_GPU} --chunks={NUMBER_OF_CHUNKS} --index={wildcards.id} >&{output}.part && mv {output}.part {output}"
 
 rule segment_all_chunks:
 	input:
@@ -66,7 +66,7 @@ rule write_output_hdf5:
 	output:
 		HDF5_PROGRESS + "/{id}.out"
 	shell:
-		"java -jar {JAR} create-partitioned-hdf5 --n5={N5_FOLDER} --xml={OUTPUT_XML} --partition={wildcards.id} >&{output}"
+		"java -jar {JAR} create-partitioned-hdf5 --n5={N5_FOLDER} --xml={OUTPUT_XML} --partition={wildcards.id} >&{output}.part && mv {output}.part {output}"
 
 rule write_output_xml:
 	input:
