@@ -42,7 +42,7 @@ public class CreatePartitionedHdf5Command implements
 	private boolean onlyHeader;
 
 	@CommandLine.Option(names = { "--partition" },
-		description = "Only write the partition with the give index. The index must be between 0 and number of partitions minus 1.")
+		description = "Only write the partition with the given index. The index must be between 0 and number of partitions minus 1.")
 	private Integer partitionIndex;
 
 	@CommandLine.Option(names = { "--number-of-partitions" },
