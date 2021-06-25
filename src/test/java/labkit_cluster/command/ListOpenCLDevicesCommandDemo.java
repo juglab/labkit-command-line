@@ -2,10 +2,9 @@ package labkit_cluster.command;
 
 import org.junit.Test;
 
-public class ListOpenCLDevicesCommandTest {
+public class ListOpenCLDevicesCommandDemo {
 
-	@Test
-	public void test() {
+	public static void main(String... args) {
 		LabkitCommandTest.runCommandLine("list-opencl-devices");
 	}
 }

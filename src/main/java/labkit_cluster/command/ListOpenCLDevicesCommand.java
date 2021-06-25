@@ -1,6 +1,7 @@
 package labkit_cluster.command;
 
 import net.haesleinhuepf.clij.CLIJ;
+import net.haesleinhuepf.clij.clearcl.exceptions.OpenCLException;
 import picocli.CommandLine;
 
 import java.util.List;
@@ -12,8 +13,16 @@ public class ListOpenCLDevicesCommand implements Callable<Optional<Integer>> {
 
 	@Override
 	public Optional<Integer> call() throws Exception {
-		List<String> names = CLIJ.getAvailableDeviceNames();
-		names.forEach(System.out::println);
-		return Optional.of(0);
+		try {
+			List<String> names = CLIJ.getAvailableDeviceNames();
+			names.forEach(System.out::println);
+			return Optional.of(0);
+		} catch (OpenCLException e) {
+			if (e.getErrorCode() == -1001) {
+				System.err.println("No OpenCL device available.");
+				return Optional.of(1);
+			}
+			throw e;
+		}
 	}
 }
