@@ -10,9 +10,9 @@ import net.imglib2.img.cell.CellGrid;
 import net.imglib2.labkit.inputimage.SpimDataInputImage;
 import net.imglib2.labkit.segmentation.Segmenter;
 import net.imglib2.labkit.segmentation.weka.TrainableSegmentationSegmenter;
-import net.imglib2.parallel.Parallelization;
 import net.imglib2.parallel.TaskExecutor;
 import net.imglib2.parallel.TaskExecutors;
+import net.imglib2.trainable_segmentation.gpu.api.GpuPool;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.util.IntervalIndexer;
 import net.imglib2.util.Intervals;
@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
@@ -81,9 +83,30 @@ public class SegmentChunkCommand implements Callable<Optional<Integer>> {
 				block -> segmenter.segment(imgPlus, block);
 		if(segmenter.requiresFixedCellSize())
 			loader = fixBlockSize(loader);
-		writeN5Range(n5.getAbsolutePath(), index % number_of_chunks,
-			number_of_chunks, loader);
+		try(TaskExecutor taskExecutor = getTaskExecutor()) {
+			writeN5Range(n5.getAbsolutePath(), index % number_of_chunks,
+					number_of_chunks, loader, taskExecutor);
+		}
 		return Optional.of(0); // exit code 0
+	}
+
+	private TaskExecutor getTaskExecutor() {
+		if (use_gpu) {
+			// Use as many threads as there are parallel gpu accesses allowed with the GpuPool.
+			// Each of those treads uses standard multithreading, for fast memory copying to the GPU.
+			if(!GpuPool.isGpuAvailable()) {
+				System.err.println("No OpenCL device found. Make sure you properly install your OpenCL drivers.");
+				System.exit(1);
+			}
+			TaskExecutor taskExecutor = TaskExecutors.multiThreaded();
+			ThreadFactory threadFactory = TaskExecutors.threadFactory(() -> taskExecutor);
+			return TaskExecutors.forExecutorService(Executors.newFixedThreadPool(GpuPool.size(), threadFactory));
+		}
+		else {
+			// Use as many threads as there are processors.
+			// Single threading inside each of those threads.
+			return TaskExecutors.fixedThreadPool(Runtime.getRuntime().availableProcessors());
+		}
 	}
 
 	private Consumer<RandomAccessibleInterval<UnsignedByteType>> fixBlockSize(Consumer<RandomAccessibleInterval<UnsignedByteType>> loader) throws IOException {
@@ -112,7 +135,7 @@ public class SegmentChunkCommand implements Callable<Optional<Integer>> {
 	}
 
 	private static void writeN5Range(String output, int index, int numberOfChunks,
-		Consumer<RandomAccessibleInterval<UnsignedByteType>> loader)
+			Consumer<RandomAccessibleInterval<UnsignedByteType>> loader, TaskExecutor taskExecutor)
 		throws IOException
 	{
 		N5Writer writer = new N5FSWriter(output);
@@ -123,7 +146,6 @@ public class SegmentChunkCommand implements Callable<Optional<Integer>> {
 		int end = Math.min(size, start + chunkSize);
 		StopWatch watch = StopWatch.createAndStart();
 		AtomicInteger counter = new AtomicInteger(start);
-		TaskExecutor taskExecutor = TaskExecutors.multiThreaded();
 		taskExecutor.forEach(new IntRange(start, end), ignore -> {
 			int i = counter.getAndIncrement();
 			long[] blockOffset = new long[gridDimensions.length];
