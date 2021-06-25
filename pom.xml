@@ -97,7 +97,7 @@
 		<bigdataviewer-vistools.version>1.0.0-beta-28</bigdataviewer-vistools.version>
 		<imglib2.version>5.12.0</imglib2.version>
 		<imglib2-cache.version>1.0.0-beta-16</imglib2-cache.version>
-		<imglib2-labkit.version>0.2.7</imglib2-labkit.version>
+		<imglib2-labkit.version>0.2.9</imglib2-labkit.version>
 		<scijava-coding-style.version>2.0.0</scijava-coding-style.version>
 		<scijava.coding-style>scijava</scijava.coding-style>
 	</properties>
