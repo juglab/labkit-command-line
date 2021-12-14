@@ -11,7 +11,7 @@
 
 	<groupId>sc.fiji</groupId>
 	<artifactId>labkit-command-line</artifactId>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.4</version>
 
 	<name>Labkit Command Line Interface</name>
 	<description>A shell command that allows to perform Labkit segmentation on a cluster.</description>
