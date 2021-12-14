@@ -89,7 +89,7 @@
 	<properties>
 		<package-name>net.imglib2.labkit</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
-		<license.copyrightOwners>Matthias Arzt, Philipp Hanslovsky</license.copyrightOwners>
+		<license.copyrightOwners>Matthias Arzt</license.copyrightOwners>
 		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
 		<releaseProfiles>deploy-to-imagej</releaseProfiles>
 		<!-- this version is also specified in labkit so why do we need to specify it here -->
