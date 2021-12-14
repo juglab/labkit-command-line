@@ -1,4 +1,4 @@
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
 
 import org.scijava.Context;
 import org.scijava.ui.UIService;

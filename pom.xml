@@ -9,7 +9,7 @@
 		<version>30.0.0</version>
 	</parent>
 
-	<groupId>net.imglib2</groupId>
+	<groupId>sc.fiji</groupId>
 	<artifactId>labkit-command-line</artifactId>
 	<version>0.1.4-SNAPSHOT</version>
 
@@ -87,7 +87,7 @@
 	</ciManagement>
 
 	<properties>
-		<package-name>net.imglib2.labkit</package-name>
+		<package-name>sc.fiji.labkit.cli</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>Matthias Arzt</license.copyrightOwners>
 		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
@@ -97,7 +97,7 @@
 		<bigdataviewer-vistools.version>1.0.0-beta-28</bigdataviewer-vistools.version>
 		<imglib2.version>5.12.0</imglib2.version>
 		<imglib2-cache.version>1.0.0-beta-16</imglib2-cache.version>
-		<imglib2-labkit.version>0.2.9</imglib2-labkit.version>
+		<labkit-ui.version>0.3.0</labkit-ui.version>
 		<scijava-coding-style.version>2.0.0</scijava-coding-style.version>
 		<scijava.coding-style>scijava</scijava.coding-style>
 	</properties>
@@ -118,7 +118,7 @@
 							<transformers>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>labkit_cluster.command.LabkitCommand</mainClass>
+									<mainClass>sc.fiji.labkit.cli.LabkitCommand</mainClass>
 								</transformer>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
@@ -164,9 +164,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>net.imglib2</groupId>
-			<artifactId>imglib2-labkit</artifactId>
-			<version>${imglib2-labkit.version}</version>
+			<groupId>sc.fiji</groupId>
+			<artifactId>labkit-ui</artifactId>
+			<version>${labkit-ui.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>info.picocli</groupId>

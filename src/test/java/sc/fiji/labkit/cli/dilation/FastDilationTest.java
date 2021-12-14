@@ -1,6 +1,5 @@
-package labkit_cluster.command.dilation;
+package sc.fiji.labkit.cli.dilation;
 
-import labkit_cluster.command.dilation.FastDilation;
 import net.imglib2.algorithm.neighborhood.DiamondShape;
 import net.imglib2.algorithm.neighborhood.RectangleShape;
 import net.imglib2.img.Img;

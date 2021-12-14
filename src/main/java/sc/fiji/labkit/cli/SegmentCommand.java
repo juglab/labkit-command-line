@@ -1,10 +1,10 @@
 
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
 
 import io.scif.config.SCIFIOConfig;
 import io.scif.img.ImgSaver;
 import io.scif.services.DatasetIOService;
-import labkit_cluster.command.dilation.FastDilation;
+import sc.fiji.labkit.cli.dilation.FastDilation;
 import net.imagej.Dataset;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.labeling.ConnectedComponents;
@@ -12,7 +12,6 @@ import net.imglib2.algorithm.neighborhood.DiamondShape;
 import net.imglib2.algorithm.neighborhood.RectangleShape;
 import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImgs;
-import net.imglib2.labkit.plugin.SegmentImageWithLabkitPlugin;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.util.Cast;
@@ -22,6 +21,7 @@ import org.scijava.command.CommandService;
 import org.scijava.io.location.BytesLocation;
 import org.scijava.util.ByteArray;
 import picocli.CommandLine;
+import sc.fiji.labkit.ui.plugin.SegmentImageWithLabkitPlugin;
 
 import java.io.File;
 import java.io.FileOutputStream;

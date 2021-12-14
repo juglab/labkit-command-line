@@ -8,7 +8,7 @@
 	<dependencySets>
 		<dependencySet>
 			<includes>
-				<include>net.imglib2:labkit-command-line:jar</include>
+				<include>sc.fiji:labkit-command-line:jar</include>
 			</includes>
 		</dependencySet>
 	</dependencySets>

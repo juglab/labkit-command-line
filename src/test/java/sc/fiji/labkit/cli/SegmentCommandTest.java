@@ -1,4 +1,4 @@
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
 
 import ij.ImagePlus;
 import org.junit.Test;

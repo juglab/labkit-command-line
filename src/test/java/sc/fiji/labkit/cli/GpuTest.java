@@ -1,7 +1,7 @@
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
 
-import net.imglib2.trainable_segmentation.gpu.api.GpuPool;
 import org.junit.Test;
+import sc.fiji.labkit.pixel_classification.gpu.api.GpuPool;
 
 import java.io.IOException;
 import java.nio.file.Files;

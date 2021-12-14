@@ -1,20 +1,18 @@
 
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
 
 import bdv.export.ProgressWriterConsole;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.hdf5.HDF5Saver;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import org.janelia.saalfeldlab.n5.N5FSReader;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import picocli.CommandLine;
+import sc.fiji.labkit.ui.utils.HDF5Saver;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-
-import static labkit_cluster.command.PrepareCommand.N5_DATASET_NAME;
 
 /**
  * This class defines the "create-hdf5" sub command.
@@ -60,7 +58,7 @@ public class CreatePartitionedHdf5Command implements
 	private RandomAccessibleInterval<UnsignedByteType> openN5() throws IOException {
 		N5FSReader reader = new N5FSReader(n5.getAbsolutePath());
 		return N5Utils.open(reader,
-				N5_DATASET_NAME, new UnsignedByteType());
+				PrepareCommand.N5_DATASET_NAME, new UnsignedByteType());
 	}
 
 	private void createOutputDirectory() {

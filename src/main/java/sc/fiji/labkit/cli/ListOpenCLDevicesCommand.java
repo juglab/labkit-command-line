@@ -1,4 +1,4 @@
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
 
 import net.haesleinhuepf.clij.CLIJ;
 import net.haesleinhuepf.clij.clearcl.exceptions.OpenCLException;

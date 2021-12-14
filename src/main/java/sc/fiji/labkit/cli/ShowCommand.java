@@ -1,5 +1,5 @@
 
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
 
 import bdv.util.BdvFunctions;
 import net.imglib2.RandomAccessibleInterval;

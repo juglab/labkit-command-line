@@ -1,15 +1,8 @@
 
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
 
 import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
-import net.imagej.axis.CalibratedAxis;
-import net.imglib2.FinalInterval;
-import net.imglib2.img.cell.CellGrid;
-import net.imglib2.labkit.inputimage.ImgPlusViewsOld;
-import net.imglib2.labkit.inputimage.SpimDataToImgPlus;
-import net.imglib2.labkit.segmentation.Segmenter;
-import net.imglib2.labkit.segmentation.weka.TrainableSegmentationSegmenter;
 import net.imglib2.util.Intervals;
 import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.GzipCompression;
@@ -17,6 +10,10 @@ import org.janelia.saalfeldlab.n5.N5FSWriter;
 import org.janelia.saalfeldlab.n5.N5Writer;
 import org.scijava.Context;
 import picocli.CommandLine;
+import sc.fiji.labkit.ui.inputimage.ImgPlusViewsOld;
+import sc.fiji.labkit.ui.inputimage.SpimDataToImgPlus;
+import sc.fiji.labkit.ui.segmentation.Segmenter;
+import sc.fiji.labkit.ui.segmentation.weka.TrainableSegmentationSegmenter;
 
 import java.io.File;
 import java.util.Optional;
@@ -76,7 +73,7 @@ public class PrepareCommand implements Callable<Optional<Integer>> {
 	}
 
 	private long[] imageDimensionsWithoutChannelAxis(ImgPlus< ? > image) {
-		if (ImgPlusViewsOld.hasAxis(image, Axes.CHANNEL))
+		if ( ImgPlusViewsOld.hasAxis(image, Axes.CHANNEL))
 			image = ImgPlusViewsOld.hyperSlice(image, Axes.CHANNEL, 0);
 		return Intervals.dimensionsAsLongArray(image);
 	}

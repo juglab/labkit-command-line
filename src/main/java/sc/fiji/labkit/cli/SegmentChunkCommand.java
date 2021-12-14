@@ -1,5 +1,5 @@
 
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
 
 import net.imagej.ImgPlus;
 import net.imglib2.FinalInterval;
@@ -7,12 +7,8 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.img.cell.CellGrid;
-import net.imglib2.labkit.inputimage.SpimDataInputImage;
-import net.imglib2.labkit.segmentation.Segmenter;
-import net.imglib2.labkit.segmentation.weka.TrainableSegmentationSegmenter;
 import net.imglib2.parallel.TaskExecutor;
 import net.imglib2.parallel.TaskExecutors;
-import net.imglib2.trainable_segmentation.gpu.api.GpuPool;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.util.IntervalIndexer;
 import net.imglib2.util.Intervals;
@@ -24,6 +20,10 @@ import org.janelia.saalfeldlab.n5.N5Writer;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import org.scijava.Context;
 import picocli.CommandLine;
+import sc.fiji.labkit.pixel_classification.gpu.api.GpuPool;
+import sc.fiji.labkit.ui.inputimage.SpimDataInputImage;
+import sc.fiji.labkit.ui.segmentation.Segmenter;
+import sc.fiji.labkit.ui.segmentation.weka.TrainableSegmentationSegmenter;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,5 +1,5 @@
 
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
 
 import picocli.CommandLine;
 

@@ -1,4 +1,6 @@
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
+
+import sc.fiji.labkit.cli.LabkitCommand;
 
 public class ShowUICommandDemo {
 

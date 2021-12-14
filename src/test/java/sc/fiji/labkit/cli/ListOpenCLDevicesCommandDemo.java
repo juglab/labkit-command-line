@@ -1,6 +1,4 @@
-package labkit_cluster.command;
-
-import org.junit.Test;
+package sc.fiji.labkit.cli;
 
 public class ListOpenCLDevicesCommandDemo {
 

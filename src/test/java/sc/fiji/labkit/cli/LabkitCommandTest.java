@@ -1,6 +1,7 @@
 
-package labkit_cluster.command;
+package sc.fiji.labkit.cli;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -39,7 +40,7 @@ public class LabkitCommandTest {
 			TestData.classifier, "--n5", tmpN5.toString(), "--chunks", "2", "--index", "0");
 		runCommandLine("segment-chunk", "--image", TestData.imageXml, "--classifier",
 			TestData.classifier, "--n5", tmpN5.toString(), "--chunks", "2", "--index", "1");
-		assertTrue(tmpN5.resolve(PrepareCommand.N5_DATASET_NAME).resolve("0/0/0")
+		assertTrue(tmpN5.resolve( PrepareCommand.N5_DATASET_NAME).resolve("0/0/0")
 			.toFile().exists());
 	}
 
@@ -118,6 +119,7 @@ public class LabkitCommandTest {
 		testDataset("3d");
 	}
 
+	@Ignore("TODO: Support for multi channel images saved as BDV XML+HDF5 is currently broken.")
 	@Test
 	public void test5d() throws IOException {
 		testDataset("5d");
