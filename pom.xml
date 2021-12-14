@@ -15,7 +15,7 @@
 
 	<name>Labkit Command Line Interface</name>
 	<description>A shell command that allows to perform Labkit segmentation on a cluster.</description>
-	<url>https://github.com/maarzt/labkit-command-line</url>
+	<url>https://github.com/juglab/labkit-command-line</url>
 	<inceptionYear>2017</inceptionYear>
 	<organization>
 		<name>CSBD</name>
@@ -72,18 +72,18 @@
 	</repositories>
 
 	<scm>
-		<connection>scm:git:git://github.com/maarzt/labkit-command-line</connection>
-		<developerConnection>scm:git:git@github.com:maarzt/labkit-command-line</developerConnection>
+		<connection>scm:git:git://github.com/juglab/labkit-command-line</connection>
+		<developerConnection>scm:git:git@github.com:juglab/labkit-command-line</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/maarzt/labkit-command-line</url>
+		<url>https://github.com/juglab/labkit-command-line</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/maarzt/labkit-command-line/issues</url>
+		<url>https://github.com/juglab/labkit-command-line/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.org/maarzt/labkit-command-line</url>
+		<url>https://travis-ci.org/juglab/labkit-command-line</url>
 	</ciManagement>
 
 	<properties>
