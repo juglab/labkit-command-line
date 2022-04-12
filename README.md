@@ -6,7 +6,7 @@ A command line version of Labkit, that allows to segment large images (up to sev
 
 It's simple to use. You need to have Java 8 and Snakemake installed on your computer.
 Then installing Labkit command line just means to download and extract this [zip archive](
-https://github.com/maarzt/labkit-command-line/releases/download/v0.1.1/labkit-snakemake-exmaple-0.1.1.zip).
+https://github.com/maarzt/labkit-command-line/releases/download/v0.1.4/labkit-snakemake-exmaple-0.1.4.zip).
 It contains the Labkit command line binary and a complete example that uses Snakemake:
 ```bash
 ├── input
