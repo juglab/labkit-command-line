@@ -72,7 +72,7 @@
 	</repositories>
 
 	<scm>
-		<connection>scm:git:git://github.com/juglab/labkit-command-line</connection>
+		<connection>scm:git:https://github.com/juglab/labkit-command-line</connection>
 		<developerConnection>scm:git:git@github.com:juglab/labkit-command-line</developerConnection>
 		<tag>HEAD</tag>
 		<url>https://github.com/juglab/labkit-command-line</url>
