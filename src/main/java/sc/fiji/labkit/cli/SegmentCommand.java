@@ -1,9 +1,12 @@
 
 package sc.fiji.labkit.cli;
 
+import io.scif.codec.CompressionType;
 import io.scif.config.SCIFIOConfig;
 import io.scif.img.ImgSaver;
 import io.scif.services.DatasetIOService;
+import net.imglib2.view.Views;
+import org.scijava.io.location.FileLocation;
 import sc.fiji.labkit.cli.dilation.FastDilation;
 import net.imagej.Dataset;
 import net.imglib2.RandomAccessibleInterval;
@@ -21,6 +24,7 @@ import org.scijava.command.CommandService;
 import org.scijava.io.location.BytesLocation;
 import org.scijava.util.ByteArray;
 import picocli.CommandLine;
+import sc.fiji.labkit.pixel_classification.RevampUtils;
 import sc.fiji.labkit.ui.plugin.SegmentImageWithLabkitPlugin;
 
 import java.io.File;
@@ -110,7 +114,7 @@ public class SegmentCommand implements Callable<Optional<Integer>> {
 		}
 	}
 
-	private void writeImage(Context context, RandomAccessibleInterval<UnsignedShortType> segmentation) throws IOException {
+	private <T extends IntegerType<T>> void writeImage(Context context, RandomAccessibleInterval<T> segmentation) throws IOException {
 		try(FileOutputStream os = new FileOutputStream(outputFile)) {
 			ByteArray bytes = new ByteArray();
 			SCIFIOConfig config = new SCIFIOConfig();
