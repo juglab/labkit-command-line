@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>31.1.0</version>
+		<version>37.0.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>sc.fiji</groupId>
@@ -93,7 +93,7 @@
 		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
 		<releaseProfiles>deploy-to-imagej</releaseProfiles>
 		<!-- this version is also specified in labkit so why do we need to specify it here -->
-		<labkit-ui.version>0.3.0</labkit-ui.version>
+		<labkit-ui.version>0.3.12-SNAPSHOT</labkit-ui.version>
 		<scijava-coding-style.version>2.0.0</scijava-coding-style.version>
 		<scijava.coding-style>scijava</scijava.coding-style>
 	</properties>
@@ -165,13 +165,29 @@
 			<version>${labkit-ui.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>net.haesleinhuepf</groupId>
+			<artifactId>clij2_</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.android.tools</groupId>
+					<artifactId>dx</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>info.picocli</groupId>
 			<artifactId>picocli</artifactId>
 			<version>3.9.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.janelia.saalfeldlab</groupId>
+			<artifactId>n5</artifactId>
+			<version>3.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.janelia.saalfeldlab</groupId>
 			<artifactId>n5-imglib2</artifactId>
+			<version>7.0.0</version>
 		</dependency>
 		<!-- Test dependencies -->
 		<dependency>
